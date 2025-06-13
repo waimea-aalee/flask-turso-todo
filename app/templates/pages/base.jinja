@@ -34,19 +34,15 @@
     <header>
         <nav>
             <ul>
-                <li><strong><a href="/">Flask App Demo</a></strong></li>
+                <li><strong><a href="/">To Do List</a></strong></li>
             </ul>
 
             <ul>
                 {% if session.user_name %}
 
-                    <li>Hello, {{ session.user_name }}</li>
+                    <li>Hello, {{ session.user_name }}!</li>
 
-                {% endif %}
-
-                <li><a href="/">Home</a></li>
-                <li><a href="/things">Things</a></li>
-                <li><a href="/about">About</a></li>
+                {% endif %} 
 
                 {% if session.user_id %}
 
