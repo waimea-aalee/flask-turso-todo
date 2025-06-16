@@ -120,32 +120,61 @@ def show_one_thing(id):
 
 
 #-----------------------------------------------------------
-# Route for adding a thing, using data posted from a form
+# Route for adding a task, using data posted from a form
 # - Restricted to logged in users
 #-----------------------------------------------------------
 @app.post("/add")
 @login_required
-def add_a_thing():
+def add_a_task():
     # Get the data from the form
-    name  = request.form.get("name")
-    price = request.form.get("price")
+    name     = request.form.get("name")
+    priority = request.form.get("priority")
 
     # Sanitise the inputs
-    name = html.escape(name)
-    price = html.escape(price)
+    name     = html.escape(name)
+    priority = html.escape(priority)
 
     # Get the user id from the session
     user_id = session["user_id"]
 
     with connect_db() as client:
-        # Add the thing to the DB
-        sql = "INSERT INTO things (name, price, user_id) VALUES (?, ?, ?)"
-        values = [name, price, user_id]
+        # Add the task to the DB
+        sql = "INSERT INTO tasks (name, priority, user_id) VALUES (?, ?, ?)"
+        values = [name, priority, user_id]
         client.execute(sql, values)
 
         # Go back to the home page
-        flash(f"Thing '{name}' added", "success")
-        return redirect("/things")
+        flash(f"Task '{name}' added", "success")
+        return redirect("/")
+
+
+# #-----------------------------------------------------------
+# # Route for adding a thing, using data posted from a form
+# # - Restricted to logged in users
+# #-----------------------------------------------------------
+# @app.post("/add")
+# @login_required
+# def add_a_thing():
+#     # Get the data from the form
+#     name  = request.form.get("name")
+#     price = request.form.get("price")
+
+#     # Sanitise the inputs
+#     name = html.escape(name)
+#     price = html.escape(price)
+
+#     # Get the user id from the session
+#     user_id = session["user_id"]
+
+#     with connect_db() as client:
+#         # Add the thing to the DB
+#         sql = "INSERT INTO things (name, price, user_id) VALUES (?, ?, ?)"
+#         values = [name, price, user_id]
+#         client.execute(sql, values)
+
+#         # Go back to the home page
+#         flash(f"Thing '{name}' added", "success")
+#         return redirect("/things")
 
 
 #-----------------------------------------------------------
