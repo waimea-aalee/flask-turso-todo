@@ -19,16 +19,18 @@
 
     <h1>Tasks...</h1>
 
-
+    {# Only show form if user is logged in #}
+    {# {% if session.user_id and (thing.user_id == session.user_id) %} #}
+    {% if session.user_id %}
+    
     <article>
 
         <ul>
-            {% for thing in things %}
+            {% for task in tasks %}
 
                 <li>
-                    <a href="/task/{{ task.id }}">
-                        <strong>{{ task.name }}</strong>
-                    </a>
+                    <strong>{{ task.priority }}</strong>
+                            {{ task.name }}
                 </li>
 
             {% else %}
@@ -40,10 +42,6 @@
 
     </article>
 
-
-    {# Only show form if user is logged in #}
-    {% if session.user_id %}
-
         <article>
 
             <h3>Add a New Task...</h3>
@@ -52,7 +50,7 @@
 
                 <input
                     type="text"
-                    name="task"
+                    name="name"
                     placeholder="Name of new task"
                     required
                 >

@@ -30,14 +30,14 @@ def index():
     with connect_db() as client:
         # Get all the things from the DB
         sql = """
-            SELECT tasks.id,
-                   tasks.name,
-                   users.name AS owner
+            SELECT id,
+                   name,
+                   priority,
+                   completed
 
             FROM tasks
-            JOIN users ON tasks.user_id = users.id
 
-            ORDER BY tasks.name ASC
+            ORDER BY priority DESC
         """
         result = client.execute(sql)
         tasks = result.rows
@@ -62,62 +62,6 @@ def login_form():
     return render_template("pages/login.jinja")
 
 
-#-----------------------------------------------------------
-# Things page route - Show all the things, and new thing form
-#-----------------------------------------------------------
-@app.get("/things/")
-def show_all_things():
-    with connect_db() as client:
-        # Get all the things from the DB
-        sql = """
-            SELECT things.id,
-                   things.name,
-                   users.name AS owner
-
-            FROM things
-            JOIN users ON things.user_id = users.id
-
-            ORDER BY things.name ASC
-        """
-        result = client.execute(sql)
-        things = result.rows
-
-        # And show them on the page
-        return render_template("pages/things.jinja", things=things)
-
-
-#-----------------------------------------------------------
-# Thing page route - Show details of a single thing
-#-----------------------------------------------------------
-@app.get("/thing/<int:id>")
-def show_one_thing(id):
-    with connect_db() as client:
-        # Get the thing details from the DB, including the owner info
-        sql = """
-            SELECT things.id,
-                   things.name,
-                   things.price,
-                   things.user_id,
-                   users.name AS owner
-
-            FROM things
-            JOIN users ON things.user_id = users.id
-
-            WHERE things.id=?
-        """
-        values = [id]
-        result = client.execute(sql, values)
-
-        # Did we get a result?
-        if result.rows:
-            # yes, so show it on the page
-            thing = result.rows[0]
-            return render_template("pages/thing.jinja", thing=thing)
-
-        else:
-            # No, so show error
-            return not_found_error()
-
 
 #-----------------------------------------------------------
 # Route for adding a task, using data posted from a form
@@ -131,8 +75,7 @@ def add_a_task():
     priority = request.form.get("priority")
 
     # Sanitise the inputs
-    name     = html.escape(name)
-    priority = html.escape(priority)
+    name = html.escape(name)
 
     # Get the user id from the session
     user_id = session["user_id"]
@@ -146,35 +89,6 @@ def add_a_task():
         # Go back to the home page
         flash(f"Task '{name}' added", "success")
         return redirect("/")
-
-
-# #-----------------------------------------------------------
-# # Route for adding a thing, using data posted from a form
-# # - Restricted to logged in users
-# #-----------------------------------------------------------
-# @app.post("/add")
-# @login_required
-# def add_a_thing():
-#     # Get the data from the form
-#     name  = request.form.get("name")
-#     price = request.form.get("price")
-
-#     # Sanitise the inputs
-#     name = html.escape(name)
-#     price = html.escape(price)
-
-#     # Get the user id from the session
-#     user_id = session["user_id"]
-
-#     with connect_db() as client:
-#         # Add the thing to the DB
-#         sql = "INSERT INTO things (name, price, user_id) VALUES (?, ?, ?)"
-#         values = [name, price, user_id]
-#         client.execute(sql, values)
-
-#         # Go back to the home page
-#         flash(f"Thing '{name}' added", "success")
-#         return redirect("/things")
 
 
 #-----------------------------------------------------------
