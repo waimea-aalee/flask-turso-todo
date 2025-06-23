@@ -18,10 +18,6 @@
 {% block content %}
 
     <h1>Tasks...</h1>
-
-    {# Only show form if user is logged in #}
-    {# {% if session.user_id and (thing.user_id == session.user_id) %} #}
-    {% if session.user_id %}
     
     <article>
 
@@ -31,6 +27,16 @@
                 <li>
                     <strong>{{ task.priority }}</strong>
                             {{ task.name }}
+                            
+                    {% if task.completed %}
+
+                        ☒
+
+                    {% else %}
+
+                        ☐
+
+                    {% endif %}
                 </li>
 
             {% else %}
@@ -69,7 +75,5 @@
             </form>
 
         </article>
-
-    {% endif %}
 
 {% endblock %}

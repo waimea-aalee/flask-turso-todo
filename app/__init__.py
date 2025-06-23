@@ -27,23 +27,32 @@ init_error(app)     # Handle errors and exceptions
 #-----------------------------------------------------------
 @app.get("/")
 def index():
-    with connect_db() as client:
-        # Get all the things from the DB
-        sql = """
-            SELECT id,
-                   name,
-                   priority,
-                   completed
 
-            FROM tasks
+    if "logged_in" in session:
+        user_id = session["user_id"]
 
-            ORDER BY priority DESC
-        """
-        result = client.execute(sql)
-        tasks = result.rows
+        with connect_db() as client:
+            # Get all the things from the DB
+            sql = """
+                SELECT id,
+                    name,
+                    priority,
+                    completed
 
-        # And show them on the page
-        return render_template("pages/home.jinja", tasks=tasks)
+                FROM tasks
+
+                WHERE user_id=?
+
+                ORDER BY priority DESC
+            """
+            params=[user_id]
+            result = client.execute(sql, params)
+            tasks = result.rows
+
+            # And show them on the page
+            return render_template("pages/home.jinja", tasks=tasks)
+    else:
+        return render_template("pages/welcome.jinja")
 
 
 #-----------------------------------------------------------
@@ -92,24 +101,45 @@ def add_a_task():
 
 
 #-----------------------------------------------------------
-# Route for deleting a thing, Id given in the route
+# Route for deleting a task, Id given in the route
 # - Restricted to logged in users
 #-----------------------------------------------------------
 @app.get("/delete/<int:id>")
 @login_required
-def delete_a_thing(id):
+def delete_a_task(id):
     # Get the user id from the session
     user_id = session["user_id"]
 
     with connect_db() as client:
         # Delete the thing from the DB only if we own it
-        sql = "DELETE FROM things WHERE id=? AND user_id=?"
+        sql = "DELETE FROM tasks WHERE id=? AND user_id=?"
         values = [id, user_id]
         client.execute(sql, values)
 
         # Go back to the home page
-        flash("Thing deleted", "success")
-        return redirect("/things")
+        flash("Task deleted", "success")
+        return redirect("/")
+
+
+#-----------------------------------------------------------
+# Route for marking a task as complete, Id given in the route
+# - Restricted to logged in users
+#-----------------------------------------------------------
+@app.get("/complete/<int:id>")
+@login_required
+def complete_a_task(id):
+    # Get the user id from the session
+    user_id = session["user_id"]
+
+    with connect_db() as client:
+        # Update the task from the DB only if we own it
+        sql = "UPDATE FROM tasks WHERE id=? AND user_id=?"
+        values = [id, user_id]
+        client.execute(sql, values)
+
+        # Go back to the home page
+        flash("Task marked as complete", "success")
+        return redirect("/")
 
 
 #-----------------------------------------------------------
