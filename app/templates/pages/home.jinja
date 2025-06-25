@@ -25,17 +25,17 @@
             {% for task in tasks %}
 
                 <li>
+                    <a href="/delete/{{ task.id }}" onclick="return confirm('Do you really want to delete this task?');">🗑</a>
                     <strong>{{ task.priority }}</strong>
                             {{ task.name }}
                             
                     {% if task.completed %}
 
-                        ☒
+                        <a href="/incomplete/{{ task.id }}">🗹</a>
 
                     {% else %}
 
-                        ☐
-
+                        <a href="/complete/{{ task.id }}">☐</a>
                     {% endif %}
                 </li>
 

@@ -133,12 +133,35 @@ def complete_a_task(id):
 
     with connect_db() as client:
         # Update the task from the DB only if we own it
-        sql = "UPDATE FROM tasks WHERE id=? AND user_id=?"
+        sql = "UPDATE tasks SET completed = 1 WHERE id=? AND user_id=?"
+
         values = [id, user_id]
         client.execute(sql, values)
 
         # Go back to the home page
         flash("Task marked as complete", "success")
+        return redirect("/")
+
+
+#-----------------------------------------------------------
+# Route for marking a task as incomplete, Id given in the route
+# - Restricted to logged in users
+#-----------------------------------------------------------
+@app.get("/incomplete/<int:id>")
+@login_required
+def incomplete_a_task(id):
+    # Get the user id from the session
+    user_id = session["user_id"]
+
+    with connect_db() as client:
+        # Update the task from the DB only if we own it
+        sql = "UPDATE tasks SET completed = 0 WHERE id=? AND user_id=?"
+
+        values = [id, user_id]
+        client.execute(sql, values)
+
+        # Go back to the home page
+        flash("Task marked as incomplete", "success")
         return redirect("/")
 
 
